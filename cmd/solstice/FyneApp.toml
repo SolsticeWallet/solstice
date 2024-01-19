@@ -1,0 +1,8 @@
+Website = "https://github.com/solsticewallet/solstice"
+
+[Details]
+ID = "solsticewallet.solstice"
+Name = "Solstice"
+Icon = ""
+Version = "0.0.1"
+Build = 1
