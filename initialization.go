@@ -13,10 +13,14 @@ import (
 var App fyne.App
 var AppWindow fyne.Window
 
-func InitApp() {
+func InitApp(flagDebug bool) {
 	App = app.New()
 	initializeStorage()
-	log.CreateDefaultLogger(AppLogDir, GetMetadata().Name)
+	if flagDebug {
+		log.CreateDebugLogger(AppLogDir, GetMetadata().Name)
+	} else {
+		log.CreateDefaultLogger(AppLogDir, GetMetadata().Name)
+	}
 
 	AppWindow = App.NewWindow(
 		fmt.Sprintf("%s - %s", GetMetadata().Name, GetMetadata().Version))

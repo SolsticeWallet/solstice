@@ -1,0 +1,109 @@
+# active.nl.toml
+
+# Error Messages
+Err.ConvertWizardState = "fout tijdens converteren wizard state"
+Err.Initialization = "initialisatie fout"
+Err.InitWindow = "venster initialisatie fout"
+Err.InitWizard = "wizard initialisatie fout"
+Err.MnemonicGeneration = "fout tijdens genereren van mnemonic"
+Err.NewWallet = "kan wizard nieuwe portefeuille niet tonen"
+Err.NextWizardPane = "volgende wizard sherm kan niet getoond worden"
+Err.PreviousWizardPane = "vorige wizard scherm kan niet getoond worden"
+
+# Error argument labels
+Err.Arg.Error = "error"
+
+# Info Messages
+Info.SolsticeStarting = "Opstarten Solstice..."
+
+# Command line flags
+Flag.Language.Usage = "Overshrijf de standaard taal"
+Flag.Debug.Usage = "Activeer debug-logging op de terminal en in het log bestand"
+Flag.DebugI18N.Usage = "Activeer debug labels voor i18n (toont de label id's ipv de berichten)"
+
+# Generic labels
+Lbl.Cancel = "Annuleren"
+Lbl.Close = "Sluiten"
+Lbl.Finish = "Afronden"
+Lbl.Generate = "Genereren"
+Lbl.MnemonicTypes.12Words = "12 woorden (Bip39)"
+Lbl.MnemonicTypes.12WordsPwd = "12 woorden (Bip39) + wachtwoord"
+Lbl.MnemonicTypes.24Words = "24 woorden (Bip39)"
+Lbl.MnemonicTypes.24WordsPwd = "24 woorden (Bip39) + wachtwoord"
+Lbl.Next = "Volgende"
+Lbl.Previous = "Vorige"
+
+# Main Menu - File
+MM.File = "Bestand"
+MM.F.NewWallet = "Nieuwe Portefeuille"
+MM.F.OpenWallet = "Portefeuille Openen..."
+MM.F.ImportWallet = "Portefeuille Importeren..."
+MM.F.ExportWallet = "Portefeuille Exporteren..."
+MM.F.RenameWallet = "Portefeuille Hernoemen..."
+MM.F.DeleteWallet = "Portefeuile Verwijderen..."
+MM.F.CloseTab = "Tab Sluiten"
+
+
+# Wizards - NewWallet
+WZ.NewWallet.Title = "Nieuwe Portefeuille"
+
+WZ.NewWallet.CreateSoftware.Title = "Maak een nieuwe software portefeuille aan"
+WZ.NewWallet.CreateSoftware.Info='''
+Maak een backup van de gegenereerde woorden lijst in een veilge offline locatie.
+Ga niet verder naar het volgende scherm voordat je een veilige backup gemaakt hebt.
+Zonder een backup kan je je portefeuille niet herstellen.
+'''
+WZ.NewWallet.CreateSoftware.InfoBip39 = "Meer informatie omtrent Bip39 mnemonics vindt je hier:"
+WZ.NewWallet.CreateSoftware.LblMnemonicType = "Type Mnemonic:"
+WZ.NewWallet.CreateSoftware.LblPassphrase = "Wachtwoord:"
+WZ.NewWallet.CreateSoftware.DlgBip39Info.Title = "Informatie Bip39 Mnemonic"
+
+WZ.NewWallet.NetworkName.Title = "Netwerk en portefeuille naam"
+WZ.NewWallet.NetworkName.WalletNamePlaceholder = "Vul portefeuile naam in"
+WZ.NewWallet.NetworkName.LblNetwork = "Netwerk:"
+WZ.NewWallet.NetworkName.LblWalletName = "Portefeuille naam:"
+
+WZ.NewWallet.RestoreCreate.Title = "Herstel of maak een portefeuile"
+WZ.NewWallet.RestoreCreate.Info = "Gelieve te selecteren welke portefeuille je wil aanmaken"
+WZ.NewWallet.RestoreCreate.LblNewSoftware = "Nieuwe software portefeuille maken"
+WZ.NewWallet.RestoreCreate.LblRestoreSoftware = "Bestaande software portefeuille herstellen"
+WZ.NewWallet.RestoreCreate.LblNewHardware = "Nieuwe hardware portefeuille maken"
+WZ.NewWallet.RestoreCreate.LblRestoreHardware = "Bestaande hardware portefeuille hertsellen"
+
+WZ.NewWallet.RestoreCreate.InfoNewSoftware = '''
+Maakt een nieuwe software protefeuille aan door een mnemonic zin aan te maken.
+Gebruik deze optie indien je Solstice voor de eerste keer gebruikt en indine je
+geen ondersteunde hardware portefeuille hebt. De gegenereerde portefeuille
+details worden opgeslagen in een JSON bestand op de computer. Dit is minder
+veilig dan een hardware portefeuille.
+'''
+WZ.NewWallet.RestoreCreate.InfoRestoreSoftware = '''
+Herstelt een bestaan software portefeuile doormiddel van de mnemonic.
+De portefeuille details worder opgeslagen in een JSON bestand op de computer.
+Dit is minder veilig dan een hardware portefeuille.
+'''
+WZ.NewWallet.RestoreCreate.InfoNewHardware = '''
+Genereert een nieuwe portefeuille in combinatie met een hardware portefeuille.
+Gebruik deze optie indien je een ondersteunde hardware portefeuille hebt. De
+portefeuille details worden opgeslagen op de hardware portefeuille. Dit is
+veiliger dan een software portefeuille.
+'''
+WZ.NewWallet.RestoreCreate.InfoRestoreHardware = '''
+Herstelt een bestaande hardware portefeuille doormiddel van een voordien
+geexporteerde portefeuille beschrijving. De portefeuille zal initieel aangemaakt
+worden als een watch-only protefeuille. Je hebt de hardware portefeuille nodig
+om de portefeuille nadien verder te initialiseren.
+'''
+
+WZ.NewWallet.VerifySoftware.Title = "Verifieer software portefeuille"
+
+[WZ.NewWallet.VerifySoftware.Info]
+description = "Verificatie info"
+one = '''
+Geef de {{ .numWords }} woorden van je backup in in het onderstaande formulier om de geldigheid van je backup te
+controleren.
+'''
+other = '''
+geef de {{ .numWords }} woorden en het wachtwoord van je backup in in het onderstaande formulier om de geldigheid van
+je backup te controleren.
+'''

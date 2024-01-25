@@ -5,6 +5,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"github.com/solsticewallet/solstice/i18n"
 )
 
 type TabbedView interface {
@@ -46,6 +47,10 @@ type AbstractTabbedView struct {
 	mu             *sync.Mutex
 }
 
+// NewAbstractTabbedView creates a new AbstractTabbedView.
+//
+// It takes a title string, tabLocation container.TabLocation, and zero or more
+// tabs of type View. It returns a pointer to AbstractTabbedView.
 func NewAbstractTabbedView(
 	title string,
 	tabLocation container.TabLocation,
@@ -60,34 +65,38 @@ func NewAbstractTabbedView(
 	}
 }
 
+// Initialize initializes the AbstractTabbedView.
+//
+// It returns a CanvasObject and an error.
 func (v *AbstractTabbedView) Initialize() (fyne.CanvasObject, error) {
 	if err := v.configureTabs(); err != nil {
-		Logger.Error("initialization failed", "error", err)
+		Logger.Error(
+			i18n.T("Err.Initialization"),
+			i18n.T("Err.Arg.Error"), err)
 		return nil, err
 	}
 	return v.tabs, nil
 }
 
+// Append appends the given views to the AbstractTabbedView.
+//
+// It takes a variadic parameter of views and does not return anything.
 func (v *AbstractTabbedView) Append(views ...View) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 
 	for _, view := range views {
-		if _, ok := v.tabviewIndex[view.ID()]; !ok {
-			if canvasObj, err := view.Initialize(); err == nil {
+		if _, exists := v.tabviewIndex[view.ID()]; !exists {
+			if canvas, err := view.Initialize(); err == nil {
 				v.tabviews = append(v.tabviews, view)
 				v.tabviewIndex[view.ID()] = view
-				v.tabs.Append(container.NewTabItem(view.Title(), canvasObj))
-			} else {
-				Logger.Error(
-					"append failed",
-					"error", err,
-					"view", view.Title())
+				v.tabs.Append(container.NewTabItem(view.Title(), canvas))
 			}
 		}
 	}
 }
 
+// RemoveActive removes the active tab from the AbstractTabbedView.
 func (v *AbstractTabbedView) RemoveActive() {
 	v.mu.Lock()
 	defer v.mu.Unlock()
@@ -104,17 +113,23 @@ func (v *AbstractTabbedView) RemoveActive() {
 	v.tabs.RemoveIndex(curIdx)
 
 	if curIdx > 0 {
-		curIdx = curIdx - 1
+		curIdx--
 	}
 	if curIdx < len(v.tabviews) {
 		v.tabs.SelectIndex(curIdx)
 	}
 }
 
+// NumTabs returns the number of tabs in the AbstractTabbedView.
+//
+// Returns an integer.
 func (v AbstractTabbedView) NumTabs() int {
 	return len(v.tabviews)
 }
 
+// TabIndex returns the index of the specified view in the AbstractTabbedView.
+//
+// It takes a View as a parameter and returns an integer.
 func (v AbstractTabbedView) TabIndex(view View) int {
 	for idx, tabview := range v.tabviews {
 		if tabview.Equals(view) {
@@ -124,10 +139,16 @@ func (v AbstractTabbedView) TabIndex(view View) int {
 	return -1
 }
 
+// SelectTabByIndex selects a tab by its index.
+//
+// idx int
 func (v *AbstractTabbedView) SelectTabByIndex(idx int) {
 	v.tabs.SelectIndex(idx)
 }
 
+// SelectTab selects the tab for the given view.
+//
+// view View
 func (v *AbstractTabbedView) SelectTab(view View) {
 	idx := v.TabIndex(view)
 	if idx < 0 {
@@ -136,6 +157,10 @@ func (v *AbstractTabbedView) SelectTab(view View) {
 	v.tabs.SelectIndex(idx)
 }
 
+// configureTabs configures the tabs for the AbstractTabbedView.
+// It initializes the tabs, sets the tab location, and appends the tabs
+// to the tab view. It sets the current tab view to the first one.
+// It returns an error if there is an error initializing the tab views.
 func (v *AbstractTabbedView) configureTabs() error {
 	v.mu.Lock()
 	defer v.mu.Unlock()
@@ -145,13 +170,13 @@ func (v *AbstractTabbedView) configureTabs() error {
 	v.tabs.OnSelected = v.onTabSelected
 	v.tabs.OnUnselected = v.onTabUnselected
 
-	for _, tv := range v.tabviews {
-		canvasObj, err := tv.Initialize()
+	for _, tabView := range v.tabviews {
+		canvasObj, err := tabView.Initialize()
 		if err != nil {
 			return err
 		}
-		v.tabs.Append(container.NewTabItem(tv.Title(), canvasObj))
-		v.tabviewIndex[tv.ID()] = tv
+		v.tabs.Append(container.NewTabItem(tabView.Title(), canvasObj))
+		v.tabviewIndex[tabView.ID()] = tabView
 	}
 	if len(v.tabviews) > 0 {
 		v.currentTabView = v.tabviews[0]
@@ -159,6 +184,10 @@ func (v *AbstractTabbedView) configureTabs() error {
 	return nil
 }
 
+// onTabSelected is a function that handles the tab selection in the
+// AbstractTabbedView.
+//
+// It takes a tab *container.TabItem as a parameter.
 func (v *AbstractTabbedView) onTabSelected(tab *container.TabItem) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
@@ -170,6 +199,10 @@ func (v *AbstractTabbedView) onTabSelected(tab *container.TabItem) {
 	}
 }
 
+// onTabUnselected is a function that handles the unselect event of a tab in the
+// AbstractTabbedView.
+//
+// It takes a tab *container.TabItem as a parameter.
 func (v *AbstractTabbedView) onTabUnselected(tab *container.TabItem) {
 	v.mu.Lock()
 	defer v.mu.Unlock()

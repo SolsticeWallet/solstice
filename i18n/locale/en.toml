@@ -1,0 +1,106 @@
+# active.en.toml
+
+# Error Messages
+Err.ConvertWizardState = "failure converting wizard state"
+Err.Initialization = "initialization failure"
+Err.InitWindow = "window initialization failed"
+Err.InitWizard = "wizard initialization failed"
+Err.MnemonicGeneration = "failure generating new mnemonic"
+Err.NewWallet = "unable to show new wallet wizard"
+Err.NextWizardPane = "transition to next wizard pane failed"
+Err.PreviousWizardPane = "transition to previous wizard pane failed"
+
+# Error argument labels
+Err.Arg.Error = "error"
+
+# Info Messages
+Info.SolsticeStarting = "Solstice starting..."
+
+# Command line flags
+Flag.Language.Usage = "Override the default language"
+Flag.Debug.Usage = "Enable debug-logging on the terminal and in the log file"
+Flag.DebugI18N.Usage = "Enable debugging i18n (shows the label id's instead of the messages)"
+
+# Generic labels
+Lbl.Cancel = "Cancel"
+Lbl.Close = "Close"
+Lbl.Finish = "Finish"
+Lbl.Generate = "Generate"
+Lbl.MnemonicTypes.12Words = "12 words (Bip39)"
+Lbl.MnemonicTypes.12WordsPwd = "12 words (Bip39) + passphrase"
+Lbl.MnemonicTypes.24Words = "24 words (Bip39)"
+Lbl.MnemonicTypes.24WordsPwd = "24 words (Bip39) + passphrase"
+Lbl.Next = "Next"
+Lbl.Previous = "Previous"
+
+# Main Menu - File
+MM.File = "File"
+MM.F.NewWallet = "New Wallet"
+MM.F.OpenWallet = "Open Wallet..."
+MM.F.ImportWallet = "Import Wallet..."
+MM.F.ExportWallet = "Export Wallet..."
+MM.F.RenameWallet = "Rename Wallet..."
+MM.F.DeleteWallet = "Delete Wallet..."
+MM.F.CloseTab = "Close Tab"
+
+
+# Wizards - NewWallet
+WZ.NewWallet.Title = "New Wallet"
+
+WZ.NewWallet.CreateSoftware.Title = "Create new software wallet"
+WZ.NewWallet.CreateSoftware.Info='''
+Backup the generated word list in a safe offline location.
+Do not proceed to the next screen until you have made a successfull backup.
+Without a backup, your wallet cannot be recoverd.
+'''
+WZ.NewWallet.CreateSoftware.InfoBip39 = "For more information regarding Bip39 mnemonics see:"
+WZ.NewWallet.CreateSoftware.LblMnemonicType = "Mnemonic type:"
+WZ.NewWallet.CreateSoftware.LblPassphrase = "Passphrase:"
+WZ.NewWallet.CreateSoftware.DlgBip39Info.Title = "Bip39 Mnemonic phrase information"
+
+WZ.NewWallet.NetworkName.Title = "Network and wallet name"
+WZ.NewWallet.NetworkName.WalletNamePlaceholder = "Enter wallet name"
+WZ.NewWallet.NetworkName.LblNetwork = "Network:"
+WZ.NewWallet.NetworkName.LblWalletName = "Wallet name:"
+
+WZ.NewWallet.RestoreCreate.Title = "Restore or create new wallet"
+WZ.NewWallet.RestoreCreate.Info = "Please select the type of wallet you would like to create."
+WZ.NewWallet.RestoreCreate.LblNewSoftware = "New software wallet"
+WZ.NewWallet.RestoreCreate.LblRestoreSoftware = "Restore software wallet"
+WZ.NewWallet.RestoreCreate.LblNewHardware = "New hardware wallet"
+WZ.NewWallet.RestoreCreate.LblRestoreHardware = "Restore hardware wallet"
+WZ.NewWallet.RestoreCreate.InfoNewSoftware = '''
+Creates a new software wallet by generating a new mnemonic phrase.
+Use this option if you are new to Solstice and do not have a supported hardware
+device. The wallet details will be stored in a JSON file on disk which is less
+secure than using a hardware device.
+'''
+WZ.NewWallet.RestoreCreate.InfoRestoreSoftware = '''
+Restores an existing software wallet by providing a mnemonic phrase.
+The wallet details will be stored in a JSON file on disk which is less secure
+than using a hardware wallet.
+'''
+WZ.NewWallet.RestoreCreate.InfoNewHardware = '''
+Creates a new wallet by initializing it via a hardware device.
+Use this option if you have a supported hardware device. The wallet details will
+be stored on the hardware device which is more secure than using a software
+wallet.
+'''
+WZ.NewWallet.RestoreCreate.InfoRestoreHardware = '''
+Restores and existing hardware wallet by providing a previously exported wallet
+description. The wallet will initially be created as a watch only wallet. You
+will need the hardware device to compolete the wallet initialization afterwards.
+'''
+
+WZ.NewWallet.VerifySoftware.Title = "Verify software wallet"
+
+[WZ.NewWallet.VerifySoftware.Info]
+description = "Verification info"
+one = '''
+Enter the {{ .numWords }} words from your backup back into the form below in order to verify the validity of your
+backup.
+'''
+other = '''
+Enter the {{ .numWords }} and the passphrase of your backup back into the form below in order to verify the validity of
+your backup.
+'''

@@ -4,21 +4,30 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"github.com/solsticewallet/solstice"
+	"github.com/solsticewallet/solstice/i18n"
 	"github.com/solsticewallet/solstice/ui/base"
+	"github.com/solsticewallet/solstice/ui/views/wizards"
 )
 
 type MainView struct {
 	*base.AbstractTabbedView
 }
 
+// NewMainView returns a new MainView.
+//
+// Returns a base.View.
 func NewMainView() base.View {
 	return &MainView{
 		AbstractTabbedView: base.NewAbstractTabbedView(
-			"Main",
+			"",
 			container.TabLocationTop,
 		),
 	}
 }
+
+// Initialize initializes the MainView.
+//
+// It returns a fyne.CanvasObject and an error.
 func (v *MainView) Initialize() (fyne.CanvasObject, error) {
 	err := v.configureMainMenu()
 	if err != nil {
@@ -48,7 +57,19 @@ func (*MainView) Refresh() error {
 // --------------- Main Menu ------------------ //
 
 func (v *MainView) onMenuNewWallet() {
-
+	wizard, err := wizards.ShowWizard(
+		wizards.CreateWalletWizardView,
+		func() {},
+		func() {},
+		fyne.NewSize(640, 480),
+	)
+	_ = wizard
+	if err != nil {
+		base.Logger.Error(
+			i18n.T("Err.NewWallet"),
+			i18n.T("Err.Arg.Error"), err)
+		return
+	}
 }
 
 func (v *MainView) onMenuOpenWallet() {
@@ -92,37 +113,42 @@ func (v *MainView) configureMainMenu() error {
 
 func (v *MainView) configureFileMenu() *fyne.Menu {
 	return fyne.NewMenu(
-		"File",
+		i18n.T("MM.File"),
 		func() *fyne.MenuItem {
-			item := fyne.NewMenuItem("New Wallet", v.onMenuNewWallet)
+			item := fyne.NewMenuItem(
+				i18n.T("MM.F.NewWallet"),
+				v.onMenuNewWallet)
 			item.Shortcut = base.NewShortcut(
-				"NewWallet",
+				i18n.T("MM.F.NewWallet"),
 				fyne.KeyN,
-				fyne.KeyModifierSuper,
-			)
+				base.StdModifier)
 			return item
 		}(),
 		func() *fyne.MenuItem {
-			item := fyne.NewMenuItem("Open Wallet...", v.onMenuOpenWallet)
+			item := fyne.NewMenuItem(
+				i18n.T("MM.F.OpenWallet"),
+				v.onMenuOpenWallet)
 			item.Shortcut = base.NewShortcut(
-				"OpenWallet",
+				i18n.T("MM.F.OpenWallet"),
 				fyne.KeyO,
-				fyne.KeyModifierSuper,
+				base.StdModifier,
 			)
 			return item
 		}(),
 		fyne.NewMenuItemSeparator(),
-		fyne.NewMenuItem("Import Wallet...", v.onMenuImportWallet),
-		fyne.NewMenuItem("Export Wallet...", v.onMenuExportWallet),
+		fyne.NewMenuItem(i18n.T("MM.F.ImportWallet"), v.onMenuImportWallet),
+		fyne.NewMenuItem(i18n.T("MM.F.ExportWallet"), v.onMenuExportWallet),
 		fyne.NewMenuItemSeparator(),
-		fyne.NewMenuItem("Rename Wallet...", v.onMenuRenameWallet),
-		fyne.NewMenuItem("Delete Wallet...", v.onMenuDeleteWallet),
+		fyne.NewMenuItem(i18n.T("MM.F.RenameWallet"), v.onMenuRenameWallet),
+		fyne.NewMenuItem(i18n.T("MM.F.DeleteWallet"), v.onMenuDeleteWallet),
 		func() *fyne.MenuItem {
-			item := fyne.NewMenuItem("Close Tab", v.onMenuCloseTab)
+			item := fyne.NewMenuItem(
+				i18n.T("MM.F.CloseTab"),
+				v.onMenuCloseTab)
 			item.Shortcut = base.NewShortcut(
-				"CloseTab",
+				i18n.T("MM.F.CloseTab"),
 				fyne.KeyW,
-				fyne.KeyModifierSuper,
+				base.StdModifier,
 			)
 			return item
 		}(),

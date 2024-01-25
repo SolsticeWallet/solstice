@@ -1,9 +1,11 @@
 package base
 
-import "log/slog"
+import (
+	"log/slog"
+)
 
 var Logger *slog.Logger
 
 func init() {
-	Logger = slog.Default().With("context", "ui")
+	Logger = slog.Default().With("Context", "ui")
 }

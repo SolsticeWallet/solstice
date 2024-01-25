@@ -13,66 +13,47 @@ var AppWalletDir = ""
 var AppLogDir = ""
 
 func initializeStorage() {
-	initAppStorageDir()
-	initAppCacheDir()
-	initAppHomeDir()
-}
-
-func initAppStorageDir() {
-	dir, err := os.UserConfigDir()
+	configDir, err := os.UserConfigDir()
 	if err != nil {
 		panic(err)
 	}
+	initDirWithMode(
+		&AppStorageDir, configDir, GetMetadata().ID, fs.FileMode(0700))
 
-	AppStorageDir = path.Join(dir, GetMetadata().ID)
-	if err = ensureDir(AppStorageDir); err != nil {
-		panic(err)
-	}
-}
-
-func initAppCacheDir() {
-	dir, err := os.UserCacheDir()
+	cacheDir, err := os.UserCacheDir()
 	if err != nil {
 		panic(err)
 	}
+	initDir(&AppCacheDir, cacheDir, GetMetadata().ID)
 
-	AppCacheDir = path.Join(dir, GetMetadata().ID)
-	if err = ensureDir(AppCacheDir); err != nil {
-		panic(err)
-	}
-
+	initHomeDirs()
 }
 
-func initAppHomeDir() {
+func initHomeDirs() {
 	dir, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)
 	}
 
-	AppHomeDir = path.Join(dir, HiddenFolderName(GetMetadata().Name))
-	if err = ensureDir(AppHomeDir); err != nil {
-		panic(err)
-	}
+	initDirWithMode(&AppHomeDir, dir, HiddenFolderName(GetMetadata().Name), fs.FileMode(0700))
+	initDirWithMode(&AppWalletDir, AppHomeDir, "wallets", fs.FileMode(0700))
+	initDirWithMode(&AppLogDir, AppHomeDir, "logs", fs.FileMode(0700))
+}
 
-	AppWalletDir = path.Join(AppHomeDir, "wallets")
-	if err = ensureDir(AppWalletDir); err != nil {
-		panic(err)
-	}
+func initDir(target *string, baseDir string, subDir string) {
+	initDirWithMode(target, baseDir, subDir, fs.FileMode(0755))
+}
 
-	AppLogDir = path.Join(AppHomeDir, "logs")
-	if err = ensureDir(AppLogDir); err != nil {
+func initDirWithMode(target *string, baseDir string, subDir string, mode fs.FileMode) {
+	*target = path.Join(baseDir, subDir)
+	if err := ensureDir(*target, mode); err != nil {
 		panic(err)
 	}
 }
 
-func ensureDir(d string, p ...fs.FileMode) (err error) {
-	dm := fs.FileMode(0755)
-	if len(p) > 0 {
-		dm = p[0]
-	}
-
+func ensureDir(d string, p fs.FileMode) (err error) {
 	if _, err = os.Stat(d); os.IsNotExist(err) {
-		err = os.Mkdir(d, dm)
+		err = os.Mkdir(d, p)
 	}
 	return err
 }
