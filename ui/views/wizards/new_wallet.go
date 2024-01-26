@@ -15,8 +15,8 @@ type NewWalletWizardView struct {
 
 func CreateWalletWizardView(
 	parentWindow fyne.Window,
-	cancelCallback func(),
-	confirmCallback func(),
+	cancelCallback base.WizardCancelCallback,
+	confirmCallback base.WizardConfirmCallback,
 ) base.WizardView {
 	rootPane := new_wallet.NewNetworkAndNamePane()
 	wizard := NewNewWalletWizardView(
@@ -26,17 +26,30 @@ func CreateWalletWizardView(
 		confirmCallback,
 	)
 
-	pane01 := new_wallet.NewRestoreOrCreatePane()
-	wizard.AddStep(rootPane, pane01, func() bool { return true })
+	restoreOrCreatePane := new_wallet.NewRestoreOrCreatePane()
+	wizard.AddStep(rootPane, restoreOrCreatePane, func() bool { return true })
 
-	pane02 := new_wallet.NewCreateSoftwareWalletPane()
-	wizard.AddStep(pane01, pane02, func() bool {
-		return pane02.CanTransitionTo(wizard.GetState())
+	createSoftPane := new_wallet.NewCreateSoftwareWalletPane()
+	wizard.AddStep(restoreOrCreatePane, createSoftPane, func() bool {
+		return createSoftPane.CanTransitionTo(wizard.GetState())
 	})
 
-	pane03 := new_wallet.NewVerifySoftwareWalletPane()
-	wizard.AddStep(pane02, pane03, func() bool {
-		return pane03.CanTransitionTo(wizard.GetState())
+	verifySoftPane := new_wallet.NewVerifySoftwareWalletPane()
+	wizard.AddStep(createSoftPane, verifySoftPane, func() bool {
+		return verifySoftPane.CanTransitionTo(wizard.GetState())
+	})
+
+	restoreSoftPane := new_wallet.NewRestoreSoftwareWalletPane()
+	wizard.AddStep(restoreOrCreatePane, restoreSoftPane, func() bool {
+		return restoreSoftPane.CanTransitionTo(wizard.GetState())
+	})
+
+	encryptPane := new_wallet.NewEncryptWalletPane()
+	wizard.AddStep(verifySoftPane, encryptPane, func() bool {
+		return encryptPane.CanTransitionTo(wizard.GetState())
+	})
+	wizard.AddStep(restoreSoftPane, encryptPane, func() bool {
+		return encryptPane.CanTransitionTo(wizard.GetState())
 	})
 	return wizard
 }
@@ -44,8 +57,8 @@ func CreateWalletWizardView(
 func NewNewWalletWizardView(
 	parentWindow fyne.Window,
 	rootPane base.WizardPane,
-	cancelCallback func(),
-	confirmCallback func(),
+	cancelCallback base.WizardCancelCallback,
+	confirmCallback base.WizardConfirmCallback,
 ) base.WizardView {
 	wz := new(NewWalletWizardView)
 	wz.wizardState = new_wallet.NewWizardState()
@@ -53,7 +66,7 @@ func NewNewWalletWizardView(
 		parentWindow,
 		i18n.T("WZ.NewWallet.Title"),
 		rootPane,
-		func() any { return wz.wizardState },
+		func() base.WizardState { return wz.wizardState },
 		cancelCallback,
 		confirmCallback,
 	)
@@ -61,7 +74,7 @@ func NewNewWalletWizardView(
 }
 
 // GetState implements base.WizardView.
-func (w *NewWalletWizardView) GetState() any {
+func (w *NewWalletWizardView) GetState() base.WizardState {
 	return w.wizardState
 }
 

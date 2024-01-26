@@ -9,6 +9,7 @@ Err.MnemonicGeneration = "fout tijdens genereren van mnemonic"
 Err.NewWallet = "kan wizard nieuwe portefeuille niet tonen"
 Err.NextWizardPane = "volgende wizard sherm kan niet getoond worden"
 Err.PreviousWizardPane = "vorige wizard scherm kan niet getoond worden"
+Err.WalletCreation = "fout bij aanmaken portefeuille"
 
 # Error argument labels
 Err.Arg.Error = "error"
@@ -33,6 +34,13 @@ Lbl.MnemonicTypes.24WordsPwd = "24 woorden (Bip39) + wachtwoord"
 Lbl.Next = "Volgende"
 Lbl.Previous = "Vorige"
 
+# Form labels
+FrmLbl.MnemonicType = "Mnemonic type:"
+FrmLbl.Network = "Netwerk:"
+FrmLbl.Passphrase = "Wachtwoord:"
+FrmLbl.Password = "Wachtwoord:"
+FrmLbl.WalletName = "Portefeuille naam:"
+
 # Main Menu - File
 MM.File = "Bestand"
 MM.F.NewWallet = "Nieuwe Portefeuille"
@@ -54,14 +62,16 @@ Ga niet verder naar het volgende scherm voordat je een veilige backup gemaakt he
 Zonder een backup kan je je portefeuille niet herstellen.
 '''
 WZ.NewWallet.CreateSoftware.InfoBip39 = "Meer informatie omtrent Bip39 mnemonics vindt je hier:"
-WZ.NewWallet.CreateSoftware.LblMnemonicType = "Type Mnemonic:"
-WZ.NewWallet.CreateSoftware.LblPassphrase = "Wachtwoord:"
 WZ.NewWallet.CreateSoftware.DlgBip39Info.Title = "Informatie Bip39 Mnemonic"
+
+WZ.NewWallet.EncryptWallet.Title = "Versleutel protefeuille"
+WZ.NewWallet.EncryptWallet.Info = '''
+Geef een wachtwoord in indien je je protefeuille wil versleuten op de harde schijf.
+Je kan het veld leeg laten indien je je protefeuille niet wenst te versleutelen.
+'''
 
 WZ.NewWallet.NetworkName.Title = "Netwerk en portefeuille naam"
 WZ.NewWallet.NetworkName.WalletNamePlaceholder = "Vul portefeuile naam in"
-WZ.NewWallet.NetworkName.LblNetwork = "Netwerk:"
-WZ.NewWallet.NetworkName.LblWalletName = "Portefeuille naam:"
 
 WZ.NewWallet.RestoreCreate.Title = "Herstel of maak een portefeuile"
 WZ.NewWallet.RestoreCreate.Info = "Gelieve te selecteren welke portefeuille je wil aanmaken"
@@ -95,7 +105,19 @@ worden als een watch-only protefeuille. Je hebt de hardware portefeuille nodig
 om de portefeuille nadien verder te initialiseren.
 '''
 
+WZ.NewWallet.RestoreSoftware.Title = "Herstel software portefeuille"
+
 WZ.NewWallet.VerifySoftware.Title = "Verifieer software portefeuille"
+
+
+[WZ.NewWallet.RestoreSoftware.Info]
+description = "Herstel info"
+one = '''
+Geef de {{ .numWords }} woorden van de portefeuille die wil herstellen in.
+'''
+other = '''
+Geef de {{ .numWords }} woorde en het wachtwoord van de portefeuille die wil herstellen in.
+'''
 
 [WZ.NewWallet.VerifySoftware.Info]
 description = "Verificatie info"

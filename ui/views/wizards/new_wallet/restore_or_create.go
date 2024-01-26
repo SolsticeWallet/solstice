@@ -12,11 +12,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-var (
-	RestoreOrCreateLabels    []string
-	RestoreOrCreateLabelInfo []string
-)
-
 type RestoreOrCreatePane struct {
 	*base.AbstractWizardPane
 
@@ -38,9 +33,9 @@ func NewRestoreOrCreatePane() base.WizardPane {
 
 // Initialize implements base.WizardPane.
 func (p *RestoreOrCreatePane) Initialize() (fyne.CanvasObject, error) {
-	p.staticInitialize()
+	staticInitialize()
 	p.actionGroup = widget.NewRadioGroup(
-		RestoreOrCreateLabels,
+		restoreOrCreateLabels,
 		p.onActionGroupChanged,
 	)
 	p.infoLabel = widget.NewLabel("")
@@ -53,26 +48,6 @@ func (p *RestoreOrCreatePane) Initialize() (fyne.CanvasObject, error) {
 	)
 	p.canvas = canvas
 	return canvas, nil
-}
-
-func (*RestoreOrCreatePane) staticInitialize() {
-	if len(RestoreOrCreateLabels) == 0 {
-		RestoreOrCreateLabels = []string{
-			i18n.T("WZ.NewWallet.RestoreCreate.LblNewSoftware"),
-			i18n.T("WZ.NewWallet.RestoreCreate.LblRestoreSoftware"),
-			i18n.T("WZ.NewWallet.RestoreCreate.LblNewHardware"),
-			i18n.T("WZ.NewWallet.RestoreCreate.LblRestoreHardware"),
-		}
-	}
-
-	if len(RestoreOrCreateLabelInfo) == 0 {
-		RestoreOrCreateLabelInfo = []string{
-			i18n.T("WZ.NewWallet.RestoreCreate.InfoNewSoftware"),
-			i18n.T("WZ.NewWallet.RestoreCreate.InfoRestoreSoftware"),
-			i18n.T("WZ.NewWallet.RestoreCreate.InfoNewHardware"),
-			i18n.T("WZ.NewWallet.RestoreCreate.InfoRestoreHardware"),
-		}
-	}
 }
 
 // IsValid implements base.WizardPane.
@@ -96,7 +71,7 @@ func (p *RestoreOrCreatePane) OnShow() {
 
 	if p.wizardState.RestoreOrCreate != RestoreOrCreateUnknown {
 		p.actionGroup.SetSelected(
-			RestoreOrCreateLabels[p.wizardState.RestoreOrCreate])
+			restoreOrCreateLabels[p.wizardState.RestoreOrCreate])
 	}
 	p.actionGroup.Refresh()
 }
@@ -112,7 +87,7 @@ func (p *RestoreOrCreatePane) ResetState() {
 }
 
 // SetState implements base.WizardPane.
-func (p *RestoreOrCreatePane) SetState(state any) error {
+func (p *RestoreOrCreatePane) SetState(state base.WizardState) error {
 	var ok bool
 	if p.wizardState, ok = state.(*WizardState); !ok {
 		return errors.New(i18n.T("Err.ConvertWizardState"))
@@ -120,7 +95,7 @@ func (p *RestoreOrCreatePane) SetState(state any) error {
 	return nil
 }
 
-func (p *RestoreOrCreatePane) CanTransitionTo(state any) bool {
+func (p *RestoreOrCreatePane) CanTransitionTo(state base.WizardState) bool {
 	var wizardState *WizardState
 	var ok bool
 	if wizardState, ok = state.(*WizardState); !ok {
@@ -130,26 +105,36 @@ func (p *RestoreOrCreatePane) CanTransitionTo(state any) bool {
 }
 
 // OnBeforeNext implements base.WizardPane.
-func (p *RestoreOrCreatePane) OnBeforeNext() {
+func (p *RestoreOrCreatePane) OnBeforeNext() bool {
 	action := p.actionGroup.Selected
 	idx := slices.IndexFunc(
-		RestoreOrCreateLabels,
+		restoreOrCreateLabels,
 		func(a string) bool { return a == action },
 	)
 	p.wizardState.RestoreOrCreate = RestoreOrCreate(idx)
+	return true
 }
 
 // OnBeforePrevious implements base.WizardPane.
-func (p *RestoreOrCreatePane) OnBeforePrevious() {
+func (p *RestoreOrCreatePane) OnBeforePrevious() bool {
+	return true
+}
+
+func (p *RestoreOrCreatePane) OnBeforeCancel() bool {
+	return true
+}
+
+func (p *RestoreOrCreatePane) OnBeforeFinish() bool {
+	return false
 }
 
 func (p *RestoreOrCreatePane) onActionGroupChanged(action string) {
 	idx := slices.IndexFunc(
-		RestoreOrCreateLabels,
+		restoreOrCreateLabels,
 		func(a string) bool { return a == action },
 	)
 	if idx != -1 {
-		p.infoLabel.Text = RestoreOrCreateLabelInfo[idx]
+		p.infoLabel.Text = restoreOrCreateLabelInfo[idx]
 		p.infoLabel.Refresh()
 	}
 	p.AbstractWizardPane.NotifyOnChanged()

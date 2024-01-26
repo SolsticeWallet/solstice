@@ -122,7 +122,7 @@ func (p *VerifySoftwareWalletPane) Initialize() (fyne.CanvasObject, error) {
 	}
 	p.passphraseContainer = container.New(
 		layout.NewFormLayout(),
-		widget.NewLabel(i18n.T("WZ.NewWallet.VerifySoftware.LblPassphrase")),
+		widget.NewLabel(i18n.T("FrmLbl.Passphrase")),
 		p.passphraseEntry,
 	)
 
@@ -184,7 +184,7 @@ func (p *VerifySoftwareWalletPane) ResetState() {
 }
 
 // SetState implements base.WizardPane.
-func (p *VerifySoftwareWalletPane) SetState(state any) error {
+func (p *VerifySoftwareWalletPane) SetState(state base.WizardState) error {
 	var ok bool
 	if p.wizardState, ok = state.(*WizardState); !ok {
 		return errors.New(i18n.T("Err.ConvertWizardState"))
@@ -193,7 +193,7 @@ func (p *VerifySoftwareWalletPane) SetState(state any) error {
 }
 
 // CanTransitionTo implements base.WizardPane.
-func (*VerifySoftwareWalletPane) CanTransitionTo(state any) bool {
+func (*VerifySoftwareWalletPane) CanTransitionTo(state base.WizardState) bool {
 	var ok bool
 	var wizardState *WizardState
 	if wizardState, ok = state.(*WizardState); !ok {
@@ -203,13 +203,22 @@ func (*VerifySoftwareWalletPane) CanTransitionTo(state any) bool {
 }
 
 // OnBeforeNext implements base.WizardPane.
-func (p *VerifySoftwareWalletPane) OnBeforeNext() {
+func (p *VerifySoftwareWalletPane) OnBeforeNext() bool {
 	p.wizardState.BackupOK = p.backupOk
+	return true
 }
 
 // OnBeforePrevious implements base.WizardPane.
-func (p *VerifySoftwareWalletPane) OnBeforePrevious() {
+func (p *VerifySoftwareWalletPane) OnBeforePrevious() bool {
+	return true
+}
 
+func (*VerifySoftwareWalletPane) OnBeforeCancel() bool {
+	return true
+}
+
+func (*VerifySoftwareWalletPane) OnBeforeFinish() bool {
+	return false
 }
 
 func (p *VerifySoftwareWalletPane) displayMnemonicEntries(numWords int) {

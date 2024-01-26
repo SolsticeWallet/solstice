@@ -56,9 +56,9 @@ func (p *NetworkAndNamePane) Initialize() (fyne.CanvasObject, error) {
 
 	canvas := container.New(
 		layout.NewFormLayout(),
-		widget.NewLabel(i18n.T("WZ.NewWallet.NetworkName.LblNetwork")),
+		widget.NewLabel(i18n.T("FrmLbl.Network")),
 		p.networkSelect,
-		widget.NewLabel(i18n.T("WZ.NewWallet.NetworkName.LblWalletName")),
+		widget.NewLabel(i18n.T("FrmLbl.WalletName")),
 		p.walletNameInput)
 	p.canvas = canvas
 	return canvas, nil
@@ -91,16 +91,12 @@ func (p *NetworkAndNamePane) OnShow() {
 	p.walletNameInput.Refresh()
 }
 
-func (p *NetworkAndNamePane) Refresh() error {
-	return nil
-}
-
 func (p *NetworkAndNamePane) ResetState() {
 	p.wizardState.Network = solstice.SupportedNetworks[0]
 	p.wizardState.WalletName = ""
 }
 
-func (p *NetworkAndNamePane) SetState(state any) error {
+func (p *NetworkAndNamePane) SetState(state base.WizardState) error {
 	var ok bool
 	if p.wizardState, ok = state.(*WizardState); !ok {
 		return errors.New(i18n.T("Err.ConvertWizardState"))
@@ -108,17 +104,27 @@ func (p *NetworkAndNamePane) SetState(state any) error {
 	return nil
 }
 
-func (p *NetworkAndNamePane) CanTransitionTo(state any) bool {
+func (p *NetworkAndNamePane) CanTransitionTo(state base.WizardState) bool {
 	return true
 }
 
-func (p *NetworkAndNamePane) OnBeforeNext() {
+func (p *NetworkAndNamePane) OnBeforeNext() bool {
 	p.wizardState.Network = solstice.SupportedNetworks[p.networkSelect.SelectedIndex()]
 	p.wizardState.WalletName = p.walletNameInput.Text
+	return true
 }
 
-func (p *NetworkAndNamePane) OnBeforePrevious() {
+func (p *NetworkAndNamePane) OnBeforePrevious() bool {
+	return true
+}
 
+func (p *NetworkAndNamePane) OnBeforeCancel() bool {
+	return true
+}
+
+func (p *NetworkAndNamePane) OnBeforeFinish() bool {
+	// We do not allow to finish from here
+	return false
 }
 
 func (p *NetworkAndNamePane) isValidWalletName(walletName string) bool {

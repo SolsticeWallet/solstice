@@ -9,6 +9,7 @@ Err.MnemonicGeneration = "failure generating new mnemonic"
 Err.NewWallet = "unable to show new wallet wizard"
 Err.NextWizardPane = "transition to next wizard pane failed"
 Err.PreviousWizardPane = "transition to previous wizard pane failed"
+Err.WalletCreation = "failed to create wallet"
 
 # Error argument labels
 Err.Arg.Error = "error"
@@ -33,6 +34,13 @@ Lbl.MnemonicTypes.24WordsPwd = "24 words (Bip39) + passphrase"
 Lbl.Next = "Next"
 Lbl.Previous = "Previous"
 
+# Form labels
+FrmLbl.MnemonicType = "Mnemonic type:"
+FrmLbl.Network = "Network:"
+FrmLbl.Passphrase = "Passphrase:"
+FrmLbl.Password = "Password:"
+FrmLbl.WalletName = "Wallet name:"
+
 # Main Menu - File
 MM.File = "File"
 MM.F.NewWallet = "New Wallet"
@@ -54,14 +62,16 @@ Do not proceed to the next screen until you have made a successfull backup.
 Without a backup, your wallet cannot be recoverd.
 '''
 WZ.NewWallet.CreateSoftware.InfoBip39 = "For more information regarding Bip39 mnemonics see:"
-WZ.NewWallet.CreateSoftware.LblMnemonicType = "Mnemonic type:"
-WZ.NewWallet.CreateSoftware.LblPassphrase = "Passphrase:"
 WZ.NewWallet.CreateSoftware.DlgBip39Info.Title = "Bip39 Mnemonic phrase information"
+
+WZ.NewWallet.EncryptWallet.Title = "Encrypt wallet"
+WZ.NewWallet.EncryptWallet.Info = '''
+Enter a password if you wish to encrypt your wallet file on disk.
+You can leave the password entry empty if you do not wish to encrypt the wallet file.
+'''
 
 WZ.NewWallet.NetworkName.Title = "Network and wallet name"
 WZ.NewWallet.NetworkName.WalletNamePlaceholder = "Enter wallet name"
-WZ.NewWallet.NetworkName.LblNetwork = "Network:"
-WZ.NewWallet.NetworkName.LblWalletName = "Wallet name:"
 
 WZ.NewWallet.RestoreCreate.Title = "Restore or create new wallet"
 WZ.NewWallet.RestoreCreate.Info = "Please select the type of wallet you would like to create."
@@ -69,6 +79,7 @@ WZ.NewWallet.RestoreCreate.LblNewSoftware = "New software wallet"
 WZ.NewWallet.RestoreCreate.LblRestoreSoftware = "Restore software wallet"
 WZ.NewWallet.RestoreCreate.LblNewHardware = "New hardware wallet"
 WZ.NewWallet.RestoreCreate.LblRestoreHardware = "Restore hardware wallet"
+
 WZ.NewWallet.RestoreCreate.InfoNewSoftware = '''
 Creates a new software wallet by generating a new mnemonic phrase.
 Use this option if you are new to Solstice and do not have a supported hardware
@@ -92,7 +103,19 @@ description. The wallet will initially be created as a watch only wallet. You
 will need the hardware device to compolete the wallet initialization afterwards.
 '''
 
+WZ.NewWallet.RestoreSoftware.Title = "Restore software wallet"
+
 WZ.NewWallet.VerifySoftware.Title = "Verify software wallet"
+
+
+[WZ.NewWallet.RestoreSoftware.Info]
+description = "Restore info"
+one = '''
+Enter the {{ .numWords }} words from the wallet you wish to restore.
+'''
+other = '''
+Enter the {{ .numWords }} words and passphrase from the wallet you wish to restore.
+'''
 
 [WZ.NewWallet.VerifySoftware.Info]
 description = "Verification info"

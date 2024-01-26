@@ -9,8 +9,8 @@ import (
 
 func ShowWizard(
 	WizardCreator WizardCreator,
-	cancelCallback func(),
-	confirmCallback func(),
+	cancelCallback base.WizardCancelCallback,
+	confirmCallback base.WizardConfirmCallback,
 	size ...fyne.Size,
 ) (base.WizardView, error) {
 	return ShowWizardInWindow(

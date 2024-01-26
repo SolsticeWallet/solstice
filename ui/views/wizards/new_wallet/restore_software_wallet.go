@@ -5,27 +5,23 @@ import (
 	"fmt"
 	"strings"
 
-	fyne "fyne.io/fyne/v2"
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/solsticewallet/solstice"
-	"github.com/solsticewallet/solstice-core/blockchains/ethereum/utils"
 	"github.com/solsticewallet/solstice/i18n"
 	"github.com/solsticewallet/solstice/ui/base"
 	"github.com/solsticewallet/solstice/ui/custom_widgets"
 )
 
-type CreateSoftwareWalletPane struct {
+type RestoreSoftwareWalletPane struct {
 	*base.AbstractWizardPane
 
 	canvas              fyne.CanvasObject
 	mnemonicTypeSelect  *widget.Select
 	columnContainers    [4]*fyne.Container
 	wordLabels          [24]*widget.Label
-	wordEntries         [24]*custom_widgets.Entry
+	wordEntries         [24]*custom_widgets.Bip39Entry
 	passphraseContainer *fyne.Container
 	passphraseEntry     *widget.Entry
 
@@ -33,58 +29,29 @@ type CreateSoftwareWalletPane struct {
 	mnemonic    string
 }
 
-func NewCreateSoftwareWalletPane() base.WizardPane {
-	pane := &CreateSoftwareWalletPane{
+func NewRestoreSoftwareWalletPane() base.WizardPane {
+	pane := &RestoreSoftwareWalletPane{
 		AbstractWizardPane: base.NewAbstractWizardPane(
-			i18n.T("WZ.NewWallet.CreateSoftware.Title"),
+			i18n.T("WZ.NewWallet.RestoreSoftware.Title"),
 		),
 	}
 	return pane
 }
 
 // Initialize implements base.WizardPane.
-func (p *CreateSoftwareWalletPane) Initialize() (fyne.CanvasObject, error) {
+func (p *RestoreSoftwareWalletPane) Initialize() (fyne.CanvasObject, error) {
 	staticInitialize()
 
-	mnemonicSelectLayout := container.NewBorder(
-		nil, nil,
-		nil, container.NewHBox(
-			widget.NewButtonWithIcon("", theme.QuestionIcon(), func() {
-				dlgContent := container.New(
-					layout.NewVBoxLayout(),
-					widget.NewLabel(
-						i18n.T("WZ.NewWallet.CreateSoftware.InfoBip39")),
-					widget.NewHyperlink(
-						solstice.ExternalLinks["Bip39Info"].String(),
-						solstice.ExternalLinks["Bip39Info"]),
-				)
-				dlg := dialog.NewCustom(
-					i18n.T("WZ.NewWallet.CreateSoftware.DlgBip39Info.Title"),
-					i18n.T("Lbl.Close"),
-					dlgContent,
-					p.GetParentWindow(),
-				)
-				dlg.Show()
-			}),
-			widget.NewButtonWithIcon(
-				i18n.T("Lbl.Generate"),
-				theme.ViewRefreshIcon(),
-				func() {
-					p.generateNewMnemonic()
-				}),
-		),
-	)
 	p.mnemonicTypeSelect = widget.NewSelect(
 		mnemonicTypes,
 		p.onMnemonicTypeChanged,
 	)
 	p.mnemonicTypeSelect.SetSelectedIndex(0)
-	mnemonicSelectLayout.Add(p.mnemonicTypeSelect)
 
 	topForm := container.New(
 		layout.NewFormLayout(),
 		widget.NewLabel(i18n.T("FrmLbl.MnemonicType")),
-		mnemonicSelectLayout,
+		p.mnemonicTypeSelect,
 	)
 
 	p.columnContainers = [4]*fyne.Container{
@@ -97,8 +64,10 @@ func (p *CreateSoftwareWalletPane) Initialize() (fyne.CanvasObject, error) {
 	for i := 0; i < 24; i++ {
 		p.wordLabels[i] = widget.NewLabel(fmt.Sprintf("%d:", i+1))
 		p.wordLabels[i].Alignment = fyne.TextAlignTrailing
-		p.wordEntries[i] = custom_widgets.NewEntry()
-		p.wordEntries[i].SetReadonly(true)
+		p.wordEntries[i] = custom_widgets.NewBip39Entry()
+		p.wordEntries[i].OnChanged = func(string) {
+			p.AbstractWizardPane.NotifyOnChanged()
+		}
 		p.columnContainers[i/6].Add(p.wordLabels[i])
 		p.columnContainers[i/6].Add(p.wordEntries[i])
 	}
@@ -113,7 +82,17 @@ func (p *CreateSoftwareWalletPane) Initialize() (fyne.CanvasObject, error) {
 	topContainer := container.New(
 		layout.NewVBoxLayout(),
 		topForm,
-		widget.NewLabel(i18n.T("WZ.NewWallet.CreateSoftware.Info")),
+		widget.NewLabel(i18n.Tn(
+			"WZ.NewWallet.RestoreSoftware.Info",
+			func() int {
+				idx := p.mnemonicTypeSelect.SelectedIndex()
+				return idx%2 + 1
+			}(),
+			"numWords", func() string {
+				idx := p.mnemonicTypeSelect.SelectedIndex()
+				return fmt.Sprintf("%d", 12+(idx/2)*12)
+			}(),
+		)),
 		mnemonicContainer,
 	)
 
@@ -136,26 +115,34 @@ func (p *CreateSoftwareWalletPane) Initialize() (fyne.CanvasObject, error) {
 }
 
 // IsValid implements base.WizardPane.
-func (p *CreateSoftwareWalletPane) IsValid() bool {
+func (p *RestoreSoftwareWalletPane) IsValid() bool {
 	if p.canvas == nil {
 		// Not yet fully initialized !!!
 		return false
 	}
 
 	idx := p.mnemonicTypeSelect.SelectedIndex()
+	end := 12
+	if idx > 1 {
+		end = 24
+	}
+	for i := 0; i < end; i++ {
+		if p.wordEntries[i].Text == "" {
+			return false
+		}
+	}
 	if idx%2 == 1 {
 		return p.passphraseEntry.Text != ""
 	}
-
 	return true
 }
 
 // OnHide implements base.WizardPane.
-func (p *CreateSoftwareWalletPane) OnHide() {
+func (*RestoreSoftwareWalletPane) OnHide() {
 }
 
 // OnShow implements base.WizardPane.
-func (p *CreateSoftwareWalletPane) OnShow() {
+func (p *RestoreSoftwareWalletPane) OnShow() {
 	if p.wizardState == nil {
 		return
 	}
@@ -180,13 +167,14 @@ func (p *CreateSoftwareWalletPane) OnShow() {
 }
 
 // ResetState implements base.WizardPane.
-func (p *CreateSoftwareWalletPane) ResetState() {
+func (p *RestoreSoftwareWalletPane) ResetState() {
 	p.wizardState.Mnemonic = ""
 	p.wizardState.Passphrase = ""
+	p.wizardState.BackupOK = false
 }
 
 // SetState implements base.WizardPane.
-func (p *CreateSoftwareWalletPane) SetState(state base.WizardState) error {
+func (p *RestoreSoftwareWalletPane) SetState(state base.WizardState) error {
 	var ok bool
 	if p.wizardState, ok = state.(*WizardState); !ok {
 		return errors.New(i18n.T("Err.ConvertWizardState"))
@@ -194,51 +182,54 @@ func (p *CreateSoftwareWalletPane) SetState(state base.WizardState) error {
 	return nil
 }
 
-func (p *CreateSoftwareWalletPane) CanTransitionTo(state base.WizardState) bool {
+// CanTransitionTo implements base.WizardPane.
+func (p *RestoreSoftwareWalletPane) CanTransitionTo(state base.WizardState) bool {
 	var ok bool
 	var wizardState *WizardState
 	if wizardState, ok = state.(*WizardState); !ok {
 		return false
 	}
-	return wizardState.RestoreOrCreate == CreateSoftwareWallet
+	return wizardState.RestoreOrCreate == RestoreSoftwareWallet
 }
 
-func (p *CreateSoftwareWalletPane) OnBeforeNext() bool {
+// OnBeforeNext implements base.WizardPane.
+func (p *RestoreSoftwareWalletPane) OnBeforeNext() bool {
 	p.wizardState.Mnemonic = p.mnemonic
 
 	p.wizardState.Passphrase = ""
 	if !p.passphraseEntry.Hidden {
 		p.wizardState.Passphrase = p.passphraseEntry.Text
 	}
+	p.wizardState.BackupOK = true
 	return true
 }
 
-func (p *CreateSoftwareWalletPane) OnBeforePrevious() bool {
+// OnBeforePrevious implements base.WizardPane.
+func (*RestoreSoftwareWalletPane) OnBeforePrevious() bool {
 	return true
 }
 
-func (p *CreateSoftwareWalletPane) OnBeforeCancel() bool {
+func (*RestoreSoftwareWalletPane) OnBeforeCancel() bool {
 	return true
 }
 
-func (p *CreateSoftwareWalletPane) OnBeforeFinish() bool {
-	// We do not allow to finish from here!
+func (*RestoreSoftwareWalletPane) OnBeforeFinish() bool {
 	return false
 }
 
-func (p *CreateSoftwareWalletPane) onMnemonicTypeChanged(mnemonicType string) {
+func (p *RestoreSoftwareWalletPane) onMnemonicTypeChanged(mnemonicType string) {
 	if p.canvas == nil {
 		// Not yet fully initialized !!!
 		return
 	}
 
-	p.generateNewMnemonic()
+	p.clearMnemonic()
 	p.passphraseEntry.Text = ""
 	p.setUIState()
 	p.AbstractWizardPane.NotifyOnChanged()
 }
 
-func (p *CreateSoftwareWalletPane) setUIState() {
+func (p *RestoreSoftwareWalletPane) setUIState() {
 	idx := p.mnemonicTypeSelect.SelectedIndex()
 
 	p.columnContainers[0].RemoveAll()
@@ -277,25 +268,15 @@ func (p *CreateSoftwareWalletPane) setUIState() {
 	p.canvas.Refresh()
 }
 
-func (p *CreateSoftwareWalletPane) generateNewMnemonic() {
-	idx := p.mnemonicTypeSelect.SelectedIndex()
-	bitSize := 128
-	if idx > 1 {
-		bitSize = 256
+func (p *RestoreSoftwareWalletPane) clearMnemonic() {
+	for i := 0; i < 24; i++ {
+		p.wordEntries[i].SetText("")
+		p.wordEntries[i].Refresh()
 	}
-
-	mnemonic, err := utils.NewMnemonic(bitSize)
-	//p.wizardState.Mnemonic, err = utils.NewMnemonic(bitSize)
-	if err != nil {
-		base.Logger.Error(
-			i18n.T("Err.MnemonicGeneration"),
-			i18n.T("Err.Arg.Error"), err)
-		return
-	}
-	p.setMnemonic(mnemonic)
+	p.mnemonic = ""
 }
 
-func (p *CreateSoftwareWalletPane) setMnemonic(mnemonic string) {
+func (p *RestoreSoftwareWalletPane) setMnemonic(mnemonic string) {
 	p.mnemonic = mnemonic
 	words := strings.Split(mnemonic, " ")
 	for i, word := range words {

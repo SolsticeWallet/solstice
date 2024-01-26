@@ -21,9 +21,9 @@ type WizardPane interface {
 	IsFinalPane() bool
 
 	// SetState assigns the wizard state to the current page
-	SetState(any) error
+	SetState(WizardState) error
 
-	CanTransitionTo(any) bool
+	CanTransitionTo(WizardState) bool
 
 	// ResetState undoes any changes this pane introduced into the
 	// state. This is required to be able to move back in the wizard.
@@ -40,8 +40,10 @@ type WizardPane interface {
 	OnChanged(func())
 	NotifyOnChanged()
 
-	OnBeforeNext()
-	OnBeforePrevious()
+	OnBeforeNext() bool
+	OnBeforePrevious() bool
+	OnBeforeCancel() bool
+	OnBeforeFinish() bool
 }
 
 type WizardView interface {
@@ -52,7 +54,14 @@ type WizardView interface {
 	NextStep()
 	PreviousStep()
 
-	GetState() any
+	GetState() WizardState
+}
+
+type WizardCancelCallback func()
+type WizardConfirmCallback func(any)
+
+type WizardState interface {
+	GetResult() any
 }
 
 type AbstractWizardView struct {
@@ -70,18 +79,18 @@ type AbstractWizardView struct {
 	currentPane   WizardPane
 	currentCanvas fyne.CanvasObject
 
-	getState          func() any
-	onCancelCallback  func()
-	onConfirmCallback func()
+	getState          func() WizardState
+	onCancelCallback  WizardCancelCallback
+	onConfirmCallback WizardConfirmCallback
 }
 
 func NewAbstractWizardView(
 	parentWindow fyne.Window,
 	title string,
 	rootPane WizardPane,
-	getState func() any,
-	onCancelCallback func(),
-	onConfirmCallback func(),
+	getState func() WizardState,
+	onCancelCallback WizardCancelCallback,
+	onConfirmCallback WizardConfirmCallback,
 ) *AbstractWizardView {
 	v := &AbstractWizardView{
 		parentWindow:      parentWindow,
@@ -121,7 +130,9 @@ func (v *AbstractWizardView) NextStep() {
 		return
 	}
 
-	v.currentPane.OnBeforeNext()
+	if ok := v.currentPane.OnBeforeNext(); !ok {
+		return
+	}
 
 	next := v.currentPane.Next()
 	if next == nil {
@@ -153,7 +164,9 @@ func (v *AbstractWizardView) NextStep() {
 func (v *AbstractWizardView) PreviousStep() {
 	var err error
 
-	v.currentPane.OnBeforePrevious()
+	if ok := v.currentPane.OnBeforePrevious(); !ok {
+		return
+	}
 
 	prev := v.currentPane.Previous()
 	if prev == nil {
@@ -192,6 +205,21 @@ func (v *AbstractWizardView) OnHide() {
 	v.currentPane.OnHide()
 }
 
+func (v *AbstractWizardView) cancel() {
+	if ok := v.currentPane.OnBeforeCancel(); !ok {
+		return
+	}
+	v.onCancelCallback()
+}
+
+func (v *AbstractWizardView) finish() {
+	if ok := v.currentPane.OnBeforeFinish(); !ok {
+		return
+	}
+	state := v.getState()
+	v.onConfirmCallback(state.GetResult())
+}
+
 func (v *AbstractWizardView) configurePanes() (err error) {
 	v.btnPrevious = widget.NewButtonWithIcon(
 		i18n.T("Lbl.Previous"),
@@ -209,15 +237,11 @@ func (v *AbstractWizardView) configurePanes() (err error) {
 	v.btnCancel = widget.NewButtonWithIcon(
 		i18n.T("Lbl.Cancel"),
 		theme.CancelIcon(),
-		func() {
-			v.onCancelCallback()
-		})
+		v.cancel)
 	v.btnFinish = widget.NewButtonWithIcon(
 		i18n.T("Lbl.Finish"),
 		theme.ConfirmIcon(),
-		func() {
-			v.onConfirmCallback()
-		})
+		v.finish)
 
 	btnLayout := container.NewBorder(
 		nil, nil,

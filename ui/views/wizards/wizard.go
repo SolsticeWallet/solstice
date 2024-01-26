@@ -8,12 +8,12 @@ import (
 	"github.com/solsticewallet/solstice/ui/base"
 )
 
-type WizardCreator func(parentWindow fyne.Window, cancelCallback func(), confirmCallback func()) base.WizardView
+type WizardCreator func(fyne.Window, base.WizardCancelCallback, base.WizardConfirmCallback) base.WizardView
 
 func ShowWizardInDialog(
 	creator WizardCreator,
-	cancelCallback func(),
-	confirmCallback func(),
+	cancelCallback base.WizardCancelCallback,
+	confirmCallback base.WizardConfirmCallback,
 	size ...fyne.Size,
 ) (base.WizardView, error) {
 	var dlg dialog.Dialog
@@ -24,9 +24,9 @@ func ShowWizardInDialog(
 			dlg.Hide()
 			cancelCallback()
 		},
-		func() {
+		func(result any) {
 			dlg.Hide()
-			confirmCallback()
+			confirmCallback(result)
 		},
 	)
 
@@ -56,8 +56,8 @@ func ShowWizardInDialog(
 
 func ShowWizardInWindow(
 	creator WizardCreator,
-	cancelCallback func(),
-	confirmCallback func(),
+	cancelCallback base.WizardCancelCallback,
+	confirmCallback base.WizardConfirmCallback,
 	size ...fyne.Size,
 ) (base.WizardView, error) {
 	wnd := solstice.App.NewWindow("")
@@ -68,9 +68,9 @@ func ShowWizardInWindow(
 			wnd.Close()
 			cancelCallback()
 		},
-		func() {
+		func(result any) {
 			wnd.Close()
-			confirmCallback()
+			confirmCallback(result)
 		},
 	)
 

@@ -21,8 +21,12 @@ func init() {
 	debugMode = false
 	bundle = goi18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
-	bundle.LoadMessageFileFS(localeFs, "locale/en.toml")
-	bundle.LoadMessageFileFS(localeFs, "locale/nl.toml")
+	if _, err := bundle.LoadMessageFileFS(localeFs, "locale/en.toml"); err != nil {
+		panic(err)
+	}
+	if _, err := bundle.LoadMessageFileFS(localeFs, "locale/nl.toml"); err != nil {
+		panic(err)
+	}
 	// add extra languages here
 
 	lang, err := locale.GetLanguage()

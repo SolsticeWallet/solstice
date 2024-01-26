@@ -60,7 +60,7 @@ func (v *MainView) onMenuNewWallet() {
 	wizard, err := wizards.ShowWizard(
 		wizards.CreateWalletWizardView,
 		func() {},
-		func() {},
+		func(any) {},
 		fyne.NewSize(640, 480),
 	)
 	_ = wizard
